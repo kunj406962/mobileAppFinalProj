@@ -49,7 +49,7 @@ function App() {
           },
           tabBarActiveTintColor: '#000000',    // Black when active
           tabBarInactiveTintColor: '#8E8E93',  // Gray when inactive
-          tabBarStyle:{paddingTop:7, backgroundColor: '#EAEEF1'},
+          tabBarStyle:{paddingTop:7, backgroundColor: '#EAEEF1', height:80},
           tabBarLabelStyle:{marginTop: 5, fontSize: 13},
         })}>
         <Tab.Screen 
