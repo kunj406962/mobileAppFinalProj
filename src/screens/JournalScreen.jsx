@@ -21,7 +21,7 @@ export default function JournalScreen() {
         title="Dog Adoption"
       />
       <ScrollView>
-        <Text >Hello World!</Text>
+        <Text className='border' >Hello World!</Text>
         <Text >
           This is my first React Native application!
         </Text>

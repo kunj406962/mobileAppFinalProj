@@ -4,10 +4,10 @@ import {
 } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 
-export default function CalendarComponent({handleSelectDate}) {
-  const [selected, setSelected]= useState('');
+export default function CalendarComponent({handleSelectDate, className}) {
   const now=new Date();
   const today= `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  const [selected, setSelected]= useState(today);
 
   const handleToday=() => {
     if (selected===today){
@@ -17,11 +17,11 @@ export default function CalendarComponent({handleSelectDate}) {
   }
 
   return (
-    <View >
+    <View className={className}>
       <Calendar
         onDayPress={day => {
-          handleSelectDate(day.dateString);
           setSelected(day.dateString);
+          handleSelectDate(day.dateString);
         }}
         markedDates={{
           [selected]: {selected: true, selectedColor: 'black'},
