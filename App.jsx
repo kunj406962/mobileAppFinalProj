@@ -51,6 +51,7 @@ function App() {
           tabBarInactiveTintColor: '#8E8E93',  // Gray when inactive
           tabBarStyle:{paddingTop:7, backgroundColor: '#EAEEF1', height:80},
           tabBarLabelStyle:{marginTop: 5, fontSize: 13},
+          headerShown:false,
         })}>
         <Tab.Screen 
           name="ToDo" 
