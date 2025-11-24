@@ -4,7 +4,12 @@ import {
 } from 'react-native';
 import { Calendar } from 'react-native-big-calendar';
 const { height } = Dimensions.get('window');
-function LargeCalendar({currDate, events, handleSwipe}) {
+
+export default function LargeCalendar({currDate, events, handleSwipe}) {
+  const theme={palette:{
+            primary:{
+              main: "#3b82f6"
+            }}}
 
   return (
     <View style={{ flex: 1, backgroundColor: 'white'}}>
@@ -21,4 +26,3 @@ function LargeCalendar({currDate, events, handleSwipe}) {
     </View>
   );
 }
-export default LargeCalendar;

@@ -6,6 +6,7 @@ import {
   Pressable
 } from 'react-native';
 import LargeCalendar from'../assets/components/LargeCalendar.jsx'
+import CalendarHeader from '../assets/components/LargeCalendar.jsx'
 
 export default function CalendarScreen() {
   const [headerDate, setHeaderDate] = useState(new Date());
@@ -18,9 +19,9 @@ export default function CalendarScreen() {
       
       {/* HEADER */}
       <View className='p-3 mt-10 flex flex-row items-center justify-between bg-white shadow-sm rounded-lg'>  
-        <Text className='text-xl font-bold text-gray-800 mx-4'>
-          {headerDate.toLocaleString('default', { month: 'long' })} {headerDate.getFullYear()}
-        </Text>
+            <Text className='text-xl font-bold text-gray-800 mx-4'>
+            {headerDate.toLocaleString('default', { month: 'long' })} {headerDate.getFullYear()}
+            </Text>
       </View>
       <LargeCalendar
         events={events}
