@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react';
 export default function ToDoScreen() {
 
   const sampleTodos={
-    '2024-12-25': [
+    '2025-11-26': [
       {
         id: '1',
         text: 'Open Christmas presents',
@@ -60,11 +60,11 @@ export default function ToDoScreen() {
   } 
   
   const[today, setToday]= useState(new Date())
+
   const dayName = today.toLocaleDateString('en-US', { weekday: 'long' });
   const monthName = today.toLocaleDateString('en-US', { month: 'long' });
   const date = today.getDate();
   const year= today.getFullYear();
-
   const dateString = today.toISOString().split('T')[0];
 
   const[todos, setTodos]=useState(sampleTodos[dateString]||[])
