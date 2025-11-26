@@ -64,6 +64,7 @@ const PopUp = ({ visible, onClose, onAddTodo, time, onTimeChange }) => {
                   display="spinner"
                   onChange={handleTimeChange}
                   is24Hour={true}
+                  minimumDate={new Date()}
                 />
               </View>
             )}
