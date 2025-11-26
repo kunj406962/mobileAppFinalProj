@@ -1,6 +1,4 @@
 import {
-  TextInput,
-  Modal,
   SafeAreaView,
   ScrollView,
   Text,
@@ -10,8 +8,7 @@ import {
 import ToDos from "../assets/components/ToDos"
 import PopUp from "../assets/components/PopUp"
 import TodoSection from "../assets/components/ToDoSection"
-import { useState } from 'react';
-import DateTimePicker from '@react-native-community/datetimepicker'
+import { useEffect, useState } from 'react';
 
 export default function ToDoScreen() {
 
@@ -62,7 +59,7 @@ export default function ToDoScreen() {
     ]
   } 
   
-  const today = new Date();
+  const[today, setToday]= useState(new Date())
   const dayName = today.toLocaleDateString('en-US', { weekday: 'long' });
   const monthName = today.toLocaleDateString('en-US', { month: 'long' });
   const date = today.getDate();
@@ -70,10 +67,15 @@ export default function ToDoScreen() {
 
   const dateString = today.toISOString().split('T')[0];
 
-  const[todos, setTodos]=useState(sampleTodos[today]||[])
+  const[todos, setTodos]=useState(sampleTodos[dateString]||[])
   const [popup, setPopup]=useState(false)
   const [time, setTime]= useState(new Date())
 
+  useEffect(()=>{
+    const interval= setInterval(()=>{setToday(new Date())}, 60000)
+
+    return ()=> clearInterval(interval)//To stop the function from running if we are not on the screen
+  }, [])
   
   const handleTodoToggle = (todoId) => {
     setTodos(prevTodos => 
@@ -84,6 +86,18 @@ export default function ToDoScreen() {
       )
     );
   };
+
+  const timeToString=(timeString)=>{
+    const[hours, minutes]=timeString.split(':').map(Number)
+    const date= new Date();
+    date.setHours(hours, minutes, 0, 0)
+    return date;
+  }
+
+  const isTodoOverdue=(toDo)=>{
+    const toDoTime= timeToString(toDo.time)
+    return toDoTime<today && !toDo.completed    
+  }
 
   const handleAddTodo = (text, todoTime) => {
     const newTodo = {
@@ -99,7 +113,8 @@ export default function ToDoScreen() {
     setTime(selectedTime || time);
   };
 
-  const notCompleted=todos.filter(todo => !todo.completed);
+  const notCompleted=todos.filter(todo => !todo.completed && !isTodoOverdue(todo));
+  const overDue=todos.filter(todo => !todo.completed && isTodoOverdue(todo));
   const completed= todos.filter(todo => todo.completed);
 
   return (
@@ -126,7 +141,7 @@ export default function ToDoScreen() {
 
         <TodoSection
           title="Overdue"
-          todos={[]}
+          todos={overDue}
           onToggle={handleTodoToggle}
           backgroundColor="bg-[#FFE2E2]"
         />
