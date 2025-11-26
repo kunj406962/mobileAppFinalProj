@@ -8,7 +8,9 @@ import {
   View,
 } from 'react-native';
 import ToDos from "../assets/components/ToDos"
+import PopUp from "../assets/components/PopUp"
 import { useState } from 'react';
+import DateTimePicker from '@react-native-community/datetimepicker'
 
 export default function ToDoScreen() {
 
@@ -19,56 +21,52 @@ export default function ToDoScreen() {
         text: 'Open Christmas presents',
         completed: false,
         time: '08:00',
-        category: 'holiday'
       },
       {
         id: '2',
         text: 'Prepare Christmas dinner',
         completed: false,
         time: '14:00',
-        category: 'cooking'
       },
       {
         id: '3',
         text: 'Video call with family',
         completed: false,
         time: '19:00',
-        category: 'family'
       },
       {
         id: '4',
         text: 'Video call with family',
         completed: false,
         time: '19:00',
-        category: 'family'
       },
       {
         id: '5',
         text: 'Video call with family',
         completed: false,
         time: '19:00',
-        category: 'family'
       },
       {
         id: '6',
         text: 'Video call with family',
         completed: false,
         time: '19:00',
-        category: 'family'
       },
       {
         id: '7',
         text: 'Video call with family',
         completed: false,
         time: '19:00',
-        category: 'family'
       }
     ]
   } 
   const[todos, setTodos]=useState(sampleTodos['2024-12-25']||[])
   const [popup, setPopup]=useState(false)
+  const[show, setShow]= useState(false)
   const [newTodo, setNewTodo] = useState('')
-
+  const [time, setTime]= useState(new Date())
+  const hour= time.getHours()
+  const minutes= time.getMinutes()
   const today = new Date();
   const dayName = today.toLocaleDateString('en-US', { weekday: 'long' });
   const monthName = today.toLocaleDateString('en-US', { month: 'long' });
@@ -83,6 +81,20 @@ export default function ToDoScreen() {
           : todo
       )
     );
+  };
+
+  const handleAddTodo = (text, todoTime) => {
+    const newTodo = {
+      id: Date.now().toString(),
+      text: text.trim(),
+      completed: false,
+      time: todoTime,
+    };
+    setTodos(prev => [...prev, newTodo]);
+  };
+
+  const handleTimeChange = (event, selectedTime) => {
+    setTime(selectedTime || time);
   };
 
   const notCompleted=todos.filter(todo => !todo.completed);
@@ -119,43 +131,14 @@ export default function ToDoScreen() {
               return <ToDos todo={todo} onToggle={handleTodoToggle} key={todo.id}/>
             })}
           </View>
-        </View>
-
-        <Modal
-          animationType='slide'
-          transparent={true}
+        </View> 
+        <PopUp
           visible={popup}
-          onRequestClose={()=>setPopup(false)}        
-        >
-          <View className='flex-1 justify-center items-center bg-black/50'>
-            <View className='bg-white rounded-2xl p-6 mx-4 w-80'>
-              <Text className='text-xl font-bold mb-4 text-gray-800'>Add New To-Do</Text>
-              
-              <TextInput
-                className='border border-gray-300 rounded-lg p-3 mb-4'
-                placeholder="Enter your to-do..."
-                value={newTodo}
-                onChangeText={setNewTodo}
-              />
-              
-              <View className='flex-row justify-end space-x-3'>
-                <TouchableOpacity 
-                  className='px-4 py-2 rounded-lg'
-                  onPress={() => setPopup(false)}
-                >
-                  <Text className='text-gray-600'>Cancel</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity 
-                  className='bg-[#7D8C9A] px-4 py-2 rounded-lg'
-                >
-                  <Text className='text-white'>Add</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </Modal>
-
+          onClose={() => setPopup(false)}
+          onAddTodo={handleAddTodo}
+          time={time}
+          onTimeChange={handleTimeChange}
+        />       
       </ScrollView>
     </SafeAreaView>
   );

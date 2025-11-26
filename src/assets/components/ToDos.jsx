@@ -4,7 +4,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-function ToDos({todo, onToggle, key}){
+function ToDos({todo, onToggle}){
 
   const toggleCheckbox = () => {
     onToggle(todo.id);
@@ -14,7 +14,6 @@ function ToDos({todo, onToggle, key}){
     <TouchableOpacity
         onPress={toggleCheckbox}
         className='flex flex-row items-center m-2'
-        key={key}
     >
         <View className='border h-5 w-5 bg-transparent rounded-md flex items-center justify-center'>
             {todo.completed && (
