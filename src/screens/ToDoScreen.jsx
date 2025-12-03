@@ -131,11 +131,11 @@ export default function ToDoScreen() {
       : null;
 
   return (
-    <SafeAreaView className="flex-1 bg-white px-5 pt-10 pb-20">
+    <SafeAreaView className="flex-1 bg-[#F8F8F8] px-5 pb-20 -mt-0">
       {/* Top greeting */}
       <View className="mb-3">
         <Text className="text-3xl font-bold text-gray-900">
-          Hello, User
+          Hello!
         </Text>
 
         {targetPretty && (
