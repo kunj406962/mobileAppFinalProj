@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  SafeAreaView,
   Text,
   View,
   Pressable,
@@ -8,6 +7,7 @@ import {
   Modal,
   TouchableOpacity,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import LargeCalendar from '../assets/components/LargeCalendar.jsx';
 
@@ -23,7 +23,7 @@ export default function CalendarScreen() {
 
   const changeMonth = (offset) => {
     setHeaderDate((prev) => {
-      const year = prev.getFullYear();
+      const year = prev.getFullFullYear();
       const month = prev.getMonth() + offset;
       return new Date(year, month, 1);
     });
@@ -47,6 +47,7 @@ export default function CalendarScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      
       {/* HEADER */}
       <View style={styles.headerContainer}>
         <View style={styles.monthYearRow}>
@@ -55,12 +56,10 @@ export default function CalendarScreen() {
         </View>
 
         <View style={styles.arrowRow}>
-          <Pressable
-            onPress={() => changeMonth(-1)}
-            style={styles.arrowButton}
-          >
+          <Pressable onPress={() => changeMonth(-1)} style={styles.arrowButton}>
             <Text style={styles.arrowText}>{'‹'}</Text>
           </Pressable>
+
           <Pressable
             onPress={() => changeMonth(1)}
             style={[styles.arrowButton, { marginLeft: 8 }]}
@@ -78,11 +77,12 @@ export default function CalendarScreen() {
         onDayPress={handleDayPress}
       />
 
-      {/* POP-UP MODAL */}
+      {/* CUTE MODAL POPUP */}
       <Modal
         transparent={true}
         visible={cuteAlertVisible}
         animationType="fade"
+        statusBarTranslucent={true}   // 👈 fixes white top bar on Android
       >
         <View style={styles.modalBackground}>
           <View style={styles.modalCard}>
@@ -126,6 +126,7 @@ export default function CalendarScreen() {
           </View>
         </View>
       </Modal>
+
     </SafeAreaView>
   );
 }
@@ -172,10 +173,10 @@ const styles = StyleSheet.create({
 
   arrowText: { fontSize: 20, color: '#555' },
 
-  /* Modal */
+  /* MODAL BACKDROP */
   modalBackground: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.25)',
+    flex: 1,                                 // FULL SCREEN
+    backgroundColor: 'rgba(0,0,0,0.25)',     // Dark dimming layer
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -208,8 +209,8 @@ const styles = StyleSheet.create({
 
   buttonRow: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
   },
 
   actionButton: {
