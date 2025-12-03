@@ -5,19 +5,22 @@ import {
   View,
   Pressable,
   StyleSheet,
+  Modal,
+  TouchableOpacity,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import LargeCalendar from '../assets/components/LargeCalendar.jsx';
 
 export default function CalendarScreen() {
   const [headerDate, setHeaderDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [cuteAlertVisible, setCuteAlertVisible] = useState(false);
+
+  const navigation = useNavigation();
   const events = [];
 
-  // Called when user swipes month in the calendar component
-  const handleSwipe = (date) => {
-    setHeaderDate(date);
-  };
+  const handleSwipe = (date) => setHeaderDate(date);
 
-  // For the header arrows (previous / next month)
   const changeMonth = (offset) => {
     setHeaderDate((prev) => {
       const year = prev.getFullYear();
@@ -28,6 +31,19 @@ export default function CalendarScreen() {
 
   const monthName = headerDate.toLocaleString('default', { month: 'long' });
   const year = headerDate.getFullYear();
+
+  const handleDayPress = (date) => {
+    setSelectedDate(date);
+    setCuteAlertVisible(true);
+  };
+
+  const formatted = selectedDate
+    ? selectedDate.toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'short',
+        day: 'numeric',
+      })
+    : '';
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -41,74 +57,180 @@ export default function CalendarScreen() {
         <View style={styles.arrowRow}>
           <Pressable
             onPress={() => changeMonth(-1)}
-            hitSlop={8}
             style={styles.arrowButton}
           >
             <Text style={styles.arrowText}>{'‹'}</Text>
           </Pressable>
-
           <Pressable
             onPress={() => changeMonth(1)}
-            hitSlop={8}
-            style={styles.arrowButton}
+            style={[styles.arrowButton, { marginLeft: 8 }]}
           >
             <Text style={styles.arrowText}>{'›'}</Text>
           </Pressable>
         </View>
       </View>
 
-      {/* BIG CALENDAR */}
+      {/* CALENDAR */}
       <LargeCalendar
         events={events}
-        handleSwipe={handleSwipe}
         currDate={headerDate}
+        handleSwipe={handleSwipe}
+        onDayPress={handleDayPress}
       />
+
+      {/* POP-UP MODAL */}
+      <Modal
+        transparent={true}
+        visible={cuteAlertVisible}
+        animationType="fade"
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Create for</Text>
+            <Text style={styles.modalDate}>{formatted}</Text>
+
+            <View style={styles.buttonRow}>
+              <TouchableOpacity
+                style={[styles.actionButton, { backgroundColor: '#7D8C9A' }]}
+                onPress={() => {
+                  if (!selectedDate) return;
+                  setCuteAlertVisible(false);
+                  navigation.navigate('ToDo', {
+                    selectedDate: selectedDate.toISOString().split('T')[0],
+                  });
+                }}
+              >
+                <Text style={styles.actionText}>To-Do</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.actionButton, { backgroundColor: '#A4C8EA' }]}
+                onPress={() => {
+                  if (!selectedDate) return;
+                  setCuteAlertVisible(false);
+                  navigation.navigate('Journal', {
+                    selectedDate: selectedDate.toISOString().split('T')[0],
+                  });
+                }}
+              >
+                <Text style={styles.actionText}>Journal</Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              onPress={() => setCuteAlertVisible(false)}
+              style={styles.cancelButton}
+            >
+              <Text style={styles.cancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
 
+/* ---------- STYLES ---------- */
+
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F8F8F8',
-    paddingTop: 0,
+    backgroundColor: '#EAEEF1',
+    paddingTop: 4,
   },
+
   headerContainer: {
     paddingHorizontal: 20,
-    paddingVertical: 10,
-    marginBottom: 4,
+    paddingVertical: 4,
+    marginTop: -6,
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#EAEEF1',
   },
+
   monthYearRow: {
     flexDirection: 'row',
     alignItems: 'baseline',
   },
-  monthText: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#333333',
-  },
-  yearText: {
-    fontSize: 18,
-    fontWeight: '400',
-    color: '#777777',
-  },
+
+  monthText: { fontSize: 22, fontWeight: '700', color: '#333' },
+  yearText: { fontSize: 18, fontWeight: '400', color: '#777' },
+
   arrowRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
   },
+
   arrowButton: {
     width: 32,
     height: 32,
     borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  arrowText: { fontSize: 20, color: '#555' },
+
+  /* Modal */
+  modalBackground: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.25)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  modalCard: {
+    width: '80%',
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 8,
+    elevation: 4,
+  },
+
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#444',
+    marginBottom: 4,
+  },
+
+  modalDate: {
+    fontSize: 16,
+    color: '#6B7280',
+    marginBottom: 20,
+  },
+
+  buttonRow: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  arrowText: {
-    fontSize: 20,
-    color: '#555555',
+
+  actionButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    marginHorizontal: 6,
+  },
+
+  actionText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+
+  cancelButton: {
+    marginTop: 12,
+  },
+
+  cancelText: {
+    fontSize: 14,
+    color: '#888',
   },
 });
