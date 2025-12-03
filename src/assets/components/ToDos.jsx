@@ -1,27 +1,43 @@
-import { useState } from 'react';
 import {
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-function ToDos({todo, onToggle}){
 
+function ToDos({ todo, onToggle }) {
   const toggleCheckbox = () => {
     onToggle(todo.id);
   };
 
   return (
     <TouchableOpacity
-        onPress={toggleCheckbox}
-        className='flex flex-row items-center m-2'
+      onPress={toggleCheckbox}
+      className="flex-row items-center py-2"
     >
-        <View className='border h-5 w-5 bg-transparent rounded-md flex items-center justify-center'>
-            {todo.completed && (
-                <Text className='font-bold -mt-0.5'>✓</Text>
-            )}
-        </View>
-        <Text className='border border-gray-400 rounded-r-full ml-3 p-1.5 w-96 font-light text-gray-800'>{todo.time} || {todo.text}</Text>
+      {/* Checkbox */}
+      <View className="h-5 w-5 rounded-md border border-gray-400 flex items-center justify-center">
+        {todo.completed && (
+          <Text className="font-bold -mt-0.5">✓</Text>
+        )}
+      </View>
+
+      {/* Task text + time */}
+      <View className="flex-1 flex-row items-center justify-between ml-3">
+        <Text
+          className={`text-base ${
+            todo.completed ? 'text-gray-400 line-through' : 'text-gray-800'
+          }`}
+          numberOfLines={2}
+        >
+          {todo.text}
+        </Text>
+
+        <Text className="text-xs text-gray-400 ml-3">
+          {todo.time}
+        </Text>
+      </View>
     </TouchableOpacity>
   );
-};
+}
+
 export default ToDos;
