@@ -53,7 +53,7 @@ export default function JournalScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#EAEEF1', // light grey like your mock
+    backgroundColor: '#EAEEF1',
   },
   header: {
     flexDirection: 'row',
@@ -62,6 +62,8 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 4,
     justifyContent: 'space-between',
+    paddingTop: 40,
+    marginTop: 10,
   },
   backArrow: {
     fontSize: 20,
