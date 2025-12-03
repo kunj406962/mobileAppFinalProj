@@ -1,17 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
+  Platform,
+  TouchableOpacity, 
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 export default function JournalScreen() {
   const navigation = useNavigation();
   const [entry, setEntry] = useState('');
+
+  const [dayName, setDayName] = useState('');
+
+useEffect(() => {
+  const today = new Date();
+  const options = { weekday: 'long' };
+  const weekday = today.toLocaleDateString('en-US', options);
+  setDayName(weekday);
+}, []);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -21,7 +31,7 @@ export default function JournalScreen() {
           <Text style={styles.backArrow}>{'←'}</Text>
         </TouchableOpacity>
 
-        <Text style={styles.title}>User&apos;s Thursday</Text>
+        <Text style={styles.title}>User&apos;s {dayName}</Text>
 
         {/* Right side placeholder (for symmetry / future icons) */}
         <View style={{ width: 24 }} />
