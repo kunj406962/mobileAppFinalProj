@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -5,14 +6,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import ToDos from "../assets/components/ToDos"
-import PopUp from "../assets/components/PopUp"
-import TodoSection from "../assets/components/ToDoSection"
-import { useEffect, useState } from 'react';
+import ToDos from '../assets/components/ToDos';
+import PopUp from '../assets/components/PopUp';
+import TodoSection from '../assets/components/ToDoSection';
 
 export default function ToDoScreen() {
-
-  const sampleTodos={
+  const sampleTodos = {
     '2025-11-26': [
       {
         id: '1',
@@ -34,19 +33,19 @@ export default function ToDoScreen() {
       },
       {
         id: '4',
-        text: 'Video call with family',
+        text: 'Clean up the dishes',
         completed: false,
         time: '19:00',
       },
       {
         id: '5',
-        text: 'Video call with family',
+        text: 'Tuck children in for the night',
         completed: false,
         time: '19:00',
       },
       {
         id: '6',
-        text: 'Video call with family',
+        text: 'Clean up trash from opening presents',
         completed: false,
         time: '19:00',
       },
@@ -55,49 +54,49 @@ export default function ToDoScreen() {
         text: 'Video call with family',
         completed: false,
         time: '19:00',
-      }
-    ]
-  } 
-  
-  const[today, setToday]= useState(new Date())
+      },
+    ],
+  };
+
+  const [today, setToday] = useState(new Date());
 
   const dayName = today.toLocaleDateString('en-US', { weekday: 'long' });
   const monthName = today.toLocaleDateString('en-US', { month: 'long' });
   const date = today.getDate();
-  const year= today.getFullYear();
+  const year = today.getFullYear();
   const dateString = today.toISOString().split('T')[0];
 
-  const[todos, setTodos]=useState(sampleTodos[dateString]||[])
-  const [popup, setPopup]=useState(false)
-  const [time, setTime]= useState(new Date())
+  const [todos, setTodos] = useState(sampleTodos[dateString] || []);
+  const [popup, setPopup] = useState(false);
+  const [time, setTime] = useState(new Date());
 
-  useEffect(()=>{
-    const interval= setInterval(()=>{setToday(new Date())}, 60000)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setToday(new Date());
+    }, 60000);
 
-    return ()=> clearInterval(interval)//To stop the function from running if we are not on the screen
-  }, [])
-  
-  const handleTodoToggle = (todoId) => {
-    setTodos(prevTodos => 
-      prevTodos.map(todo => 
-        todo.id === todoId 
-          ? { ...todo, completed: !todo.completed }
-          : todo
-      )
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleTodoToggle = todoId => {
+    setTodos(prevTodos =>
+      prevTodos.map(todo =>
+        todo.id === todoId ? { ...todo, completed: !todo.completed } : todo,
+      ),
     );
   };
 
-  const timeToString=(timeString)=>{
-    const[hours, minutes]=timeString.split(':').map(Number)
-    const date= new Date();
-    date.setHours(hours, minutes, 0, 0)
-    return date;
-  }
+  const timeToString = timeString => {
+    const [hours, minutes] = timeString.split(':').map(Number);
+    const dateObj = new Date();
+    dateObj.setHours(hours, minutes, 0, 0);
+    return dateObj;
+  };
 
-  const isTodoOverdue=(toDo)=>{
-    const toDoTime= timeToString(toDo.time)
-    return toDoTime<today && !toDo.completed    
-  }
+  const isTodoOverdue = toDo => {
+    const toDoTime = timeToString(toDo.time);
+    return toDoTime < today && !toDo.completed;
+  };
 
   const handleAddTodo = (text, todoTime) => {
     const newTodo = {
@@ -113,30 +112,54 @@ export default function ToDoScreen() {
     setTime(selectedTime || time);
   };
 
-  const notCompleted=todos.filter(todo => !todo.completed && !isTodoOverdue(todo));
-  const overDue=todos.filter(todo => !todo.completed && isTodoOverdue(todo));
-  const completed= todos.filter(todo => todo.completed);
+  const notCompleted = todos.filter(
+    todo => !todo.completed && !isTodoOverdue(todo),
+  );
+  const overDue = todos.filter(
+    todo => !todo.completed && isTodoOverdue(todo),
+  );
+  const completed = todos.filter(todo => todo.completed);
 
   return (
-    <SafeAreaView className='mt-16 pl-5 pr-5 mb-14' >
-      <Text className='text-4xl font-bold text-gray-800 mb-5'>Hello User!</Text>
-      <ScrollView>
+    <SafeAreaView className="flex-1 bg-[#F8F8F8] px-5 pt-10 pb-20">
 
-        <View className='bg-[#D9D9D9] rounded-2xl p-5 mb-6 shadow-2xl min-h-96 flex flex-col '>
-          <View className='mb-3 border-b border-gray-400 pb-1'>
-            <Text className='text-2xl font-bold text-gray-800'>{dayName}</Text>
-            <Text className='text-base italic font-light pb-1'>{monthName} {date}, {year}</Text>
+      <View className="flex-row items-center justify-start mb-6">
+        <Text className="text-3xl font-bold text-gray-900">
+          Hello!
+        </Text>
+      </View>
+
+      <ScrollView showsVerticalScrollIndicator={false}>
+
+        <View className="bg-[#E3E6EB] rounded-2xl p-5 mb-6 shadow">
+
+          <View className="mb-3">
+            <Text className="text-xl font-semibold text-gray-900">
+              {dayName}
+            </Text>
+            <Text className="text-sm text-gray-600 mt-1">
+              {monthName} {date}, {year}
+            </Text>
           </View>
-          <View className='flex flex-1 justify-between'>            
-            <View className='flex flex-col items-center'>
-              {notCompleted.map((todo)=>{
-                return <ToDos key={todo.id} todo={todo} onToggle={handleTodoToggle}/>
-              })}
-            </View>
-            <TouchableOpacity className='self-center bg-[#7D8C9A] rounded-2xl  pt-2 pb-2 w-80 text-white font-thin flex items-center' onPress={()=>setPopup(true)}>
-              <Text className='text-white font-thin'>+ Add To-Do</Text>
-            </TouchableOpacity>
-            </View>
+
+          <View className="mt-2 mb-4">
+            {notCompleted.map(todo => (
+              <ToDos
+                key={todo.id}
+                todo={todo}
+                onToggle={handleTodoToggle}
+              />
+            ))}
+          </View>
+
+          <TouchableOpacity
+            className="mt-1 bg-[#7D8C9A] rounded-2xl py-3 items-center"
+            onPress={() => setPopup(true)}
+          >
+            <Text className="text-white font-medium text-base">
+              + Add to-do
+            </Text>
+          </TouchableOpacity>
         </View>
 
         <TodoSection
@@ -159,8 +182,7 @@ export default function ToDoScreen() {
           onAddTodo={handleAddTodo}
           time={time}
           onTimeChange={handleTimeChange}
-        />       
-
+        />
       </ScrollView>
     </SafeAreaView>
   );
