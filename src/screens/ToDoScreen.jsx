@@ -121,7 +121,7 @@ export default function ToDoScreen() {
   const completed = todos.filter(todo => todo.completed);
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F8F8F8] px-5 pt-10 pb-20">
+    <SafeAreaView className="flex-1 bg-[#F8F8F8] px-5 pt-0 pb-20">
 
       <View className="flex-row items-center justify-start mb-6">
         <Text className="text-3xl font-bold text-gray-900">
