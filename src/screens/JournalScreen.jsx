@@ -25,19 +25,17 @@ useEffect(() => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* Top bar */}
+
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.backArrow}>{'←'}</Text>
         </TouchableOpacity>
 
-        <Text style={styles.title}>User&apos;s {dayName}</Text>
+        <Text style={styles.title}>{dayName}</Text>
 
-        {/* Right side placeholder (for symmetry / future icons) */}
         <View style={{ width: 24 }} />
       </View>
 
-      {/* Journal card */}
       <View style={styles.card}>
         <Text style={styles.cardSubtitle}>Journal Entry</Text>
 
@@ -58,7 +56,7 @@ useEffect(() => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#EAEEF1',
+    backgroundColor: '#F8F8F8',
   },
   header: {
   flexDirection: 'row',
