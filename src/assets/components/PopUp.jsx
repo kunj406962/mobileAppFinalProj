@@ -3,7 +3,16 @@ import { Modal, View, Text, TouchableOpacity, TextInput } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useState } from 'react';
 
-const PopUp = ({ visible, onClose, onAddTodo, time, onTimeChange }) => {
+const PopUp = ({
+  visible,
+  onClose,
+  onAddTodo,
+  time,
+  onTimeChange,
+  targetDate,      
+  targetPretty,   
+}) => {
+
   const [newTodo, setNewTodo] = useState('');
   const [showTimePicker, setShowTimePicker] = useState(false);
   
@@ -42,6 +51,12 @@ const PopUp = ({ visible, onClose, onAddTodo, time, onTimeChange }) => {
           <View className="mb-6">
             <Text className="text-2xl font-bold text-gray-800 text-center">Add New To-Do</Text>
             <View className="h-1 bg-gray-300 rounded-full mt-2"></View>
+            {targetPretty && (
+              <Text className="text-center text-gray-600 text-base mt-2 mb-4">
+              For: <Text className="font-semibold text-gray-700">{targetPretty}</Text>
+              </Text>
+            )}
+
           </View>
 
           <View className="mb-6">
