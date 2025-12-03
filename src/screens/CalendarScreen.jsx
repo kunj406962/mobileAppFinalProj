@@ -22,12 +22,12 @@ export default function CalendarScreen() {
   const handleSwipe = (date) => setHeaderDate(date);
 
   const changeMonth = (offset) => {
-    setHeaderDate((prev) => {
-      const year = prev.getFullFullYear();
-      const month = prev.getMonth() + offset;
-      return new Date(year, month, 1);
-    });
-  };
+  setHeaderDate((prev) => {
+    const year = prev.getFullYear();
+    const month = prev.getMonth() + offset;
+    return new Date(year, month, 1);
+  });
+};
 
   const monthName = headerDate.toLocaleString('default', { month: 'long' });
   const year = headerDate.getFullYear();
@@ -69,6 +69,8 @@ export default function CalendarScreen() {
         </View>
       </View>
 
+      <View style={styles.headerDivider} />
+
       {/* CALENDAR */}
       <LargeCalendar
         events={events}
@@ -82,7 +84,7 @@ export default function CalendarScreen() {
         transparent={true}
         visible={cuteAlertVisible}
         animationType="fade"
-        statusBarTranslucent={true}   // 👈 fixes white top bar on Android
+        statusBarTranslucent={true}  
       >
         <View style={styles.modalBackground}>
           <View style={styles.modalCard}>
@@ -136,7 +138,7 @@ export default function CalendarScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#EAEEF1',
+    backgroundColor: '#F8F8F8',
     paddingTop: 4,
   },
 
@@ -147,7 +149,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#EAEEF1',
+    backgroundColor: '#F8F8F8',
   },
 
   monthYearRow: {
@@ -173,10 +175,20 @@ const styles = StyleSheet.create({
 
   arrowText: { fontSize: 20, color: '#555' },
 
+  headerDivider: {
+    height: 1,
+    backgroundColor: '#C9D3DD', // soft grey to match your theme
+    width: '100%',
+    marginTop: 4,
+    marginBottom: 8,
+    alignSelf: 'center',
+  },
+
+
   /* MODAL BACKDROP */
   modalBackground: {
-    flex: 1,                                 // FULL SCREEN
-    backgroundColor: 'rgba(0,0,0,0.25)',     // Dark dimming layer
+    flex: 1,                                 
+    backgroundColor: 'rgba(0,0,0,0.25)',     
     justifyContent: 'center',
     alignItems: 'center',
   },
