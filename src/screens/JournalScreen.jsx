@@ -37,11 +37,6 @@ useEffect(() => {
         <View style={{ width: 24 }} />
       </View>
 
-      {/* Small dot at top center (like your mock) */}
-      <View style={styles.dotContainer}>
-        <View style={styles.dot} />
-      </View>
-
       {/* Journal card */}
       <View style={styles.card}>
         <Text style={styles.cardSubtitle}>Journal Entry</Text>
@@ -66,15 +61,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#EAEEF1',
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 4,
-    justifyContent: 'space-between',
-    paddingTop: 40,
-    marginTop: 10,
-  },
+  flexDirection: 'row',
+  alignItems: 'center',
+  paddingHorizontal: 16,
+  paddingBottom: 15,
+  justifyContent: 'space-between',
+  paddingTop: 2,     
+  marginTop: -5,       
+},
+
   backArrow: {
     fontSize: 20,
     color: '#333',
@@ -83,16 +78,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: '#333',
-  },
-  dotContainer: {
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 999,
-    backgroundColor: '#343A40',
   },
   card: {
     flex: 1,
