@@ -94,7 +94,7 @@ export default function JournalScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#EAEEF1',
+    backgroundColor: '#F8F8F8',
     paddingHorizontal: 20,
   },
 
