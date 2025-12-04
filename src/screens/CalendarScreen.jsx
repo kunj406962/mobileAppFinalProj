@@ -11,27 +11,37 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import LargeCalendar from '../assets/components/LargeCalendar.jsx';
 
+const formatDateYMD = (date) => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+};
+
 export default function CalendarScreen() {
   const [headerDate, setHeaderDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
   const [cuteAlertVisible, setCuteAlertVisible] = useState(false);
 
+  // Dates that have tasks (YYYY-MM-DD strings)
+  const [taskDates, setTaskDates] = useState([]);
+
   const navigation = useNavigation();
-  const events = [];
 
   const handleSwipe = (date) => setHeaderDate(date);
 
   const changeMonth = (offset) => {
-  setHeaderDate((prev) => {
-    const year = prev.getFullYear();
-    const month = prev.getMonth() + offset;
-    return new Date(year, month, 1);
-  });
-};
+    setHeaderDate((prev) => {
+      const year = prev.getFullYear();
+      const month = prev.getMonth() + offset;
+      return new Date(year, month, 1);
+    });
+  };
 
   const monthName = headerDate.toLocaleString('default', { month: 'long' });
   const year = headerDate.getFullYear();
 
+  // When a day is tapped in the calendar
   const handleDayPress = (date) => {
     setSelectedDate(date);
     setCuteAlertVisible(true);
@@ -45,9 +55,22 @@ export default function CalendarScreen() {
       })
     : '';
 
+  // Build calendar events for days that have tasks
+  const events = taskDates.map((dateStr) => {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const start = new Date(y, m - 1, d, 9, 0);
+    const end = new Date(y, m - 1, d, 10, 0);
+
+    return {
+      id: dateStr,
+      title: '•',
+      start,
+      end,
+    };
+  });
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      
       {/* HEADER */}
       <View style={styles.headerContainer}>
         <View style={styles.monthYearRow}>
@@ -69,6 +92,7 @@ export default function CalendarScreen() {
         </View>
       </View>
 
+      {/* Divider under header */}
       <View style={styles.headerDivider} />
 
       {/* CALENDAR */}
@@ -84,34 +108,45 @@ export default function CalendarScreen() {
         transparent={true}
         visible={cuteAlertVisible}
         animationType="fade"
-        statusBarTranslucent={true}  
+        statusBarTranslucent={true}
       >
         <View style={styles.modalBackground}>
           <View style={styles.modalCard}>
             <Text style={styles.modalTitle}>Create for</Text>
             <Text style={styles.modalDate}>{formatted}</Text>
 
-            <View style={styles.buttonRow}>
+            <View className="flex-row justify-center items-center">
+
+              {/* To-Do button */}
               <TouchableOpacity
                 style={[styles.actionButton, { backgroundColor: '#7D8C9A' }]}
                 onPress={() => {
                   if (!selectedDate) return;
+
+                  const iso = formatDateYMD(selectedDate);
+
+                  setTaskDates((prev) =>
+                    prev.includes(iso) ? prev : [...prev, iso]
+                  );
+
                   setCuteAlertVisible(false);
                   navigation.navigate('ToDo', {
-                    selectedDate: selectedDate.toISOString().split('T')[0],
+                    selectedDate: iso,
                   });
                 }}
               >
                 <Text style={styles.actionText}>To-Do</Text>
               </TouchableOpacity>
 
+              {/* Journal button */}
               <TouchableOpacity
                 style={[styles.actionButton, { backgroundColor: '#A4C8EA' }]}
                 onPress={() => {
                   if (!selectedDate) return;
+                  const iso = formatDateYMD(selectedDate);
                   setCuteAlertVisible(false);
                   navigation.navigate('Journal', {
-                    selectedDate: selectedDate.toISOString().split('T')[0],
+                    selectedDate: iso,
                   });
                 }}
               >
@@ -128,7 +163,6 @@ export default function CalendarScreen() {
           </View>
         </View>
       </Modal>
-
     </SafeAreaView>
   );
 }
@@ -177,18 +211,17 @@ const styles = StyleSheet.create({
 
   headerDivider: {
     height: 1,
-    backgroundColor: '#C9D3DD', // soft grey to match your theme
+    backgroundColor: '#C9D3DD',
     width: '100%',
     marginTop: 4,
     marginBottom: 8,
     alignSelf: 'center',
   },
 
-
   /* MODAL BACKDROP */
   modalBackground: {
-    flex: 1,                                 
-    backgroundColor: 'rgba(0,0,0,0.25)',     
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.25)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -217,12 +250,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#6B7280',
     marginBottom: 20,
-  },
-
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 
   actionButton: {
