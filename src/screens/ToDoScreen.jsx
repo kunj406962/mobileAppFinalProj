@@ -8,56 +8,10 @@ import {
 import ToDos from "../assets/components/ToDos"
 import PopUp from "../assets/components/PopUp"
 import TodoSection from "../assets/components/ToDoSection"
+import ToDoFileIO from "../assets/components/ToDoFileIO"
 import { useEffect, useState } from 'react';
 
 export default function ToDoScreen() {
-
-  const sampleTodos={
-    '2025-11-26': [
-      {
-        id: '1',
-        text: 'Open Christmas presents',
-        completed: false,
-        time: '08:00',
-      },
-      {
-        id: '2',
-        text: 'Prepare Christmas dinner',
-        completed: false,
-        time: '14:00',
-      },
-      {
-        id: '3',
-        text: 'Video call with family',
-        completed: false,
-        time: '19:00',
-      },
-      {
-        id: '4',
-        text: 'Video call with family',
-        completed: false,
-        time: '19:00',
-      },
-      {
-        id: '5',
-        text: 'Video call with family',
-        completed: false,
-        time: '19:00',
-      },
-      {
-        id: '6',
-        text: 'Video call with family',
-        completed: false,
-        time: '19:00',
-      },
-      {
-        id: '7',
-        text: 'Video call with family',
-        completed: false,
-        time: '19:00',
-      }
-    ]
-  } 
   
   const[today, setToday]= useState(new Date())
 
@@ -67,17 +21,26 @@ export default function ToDoScreen() {
   const year= today.getFullYear();
   const dateString = today.toISOString().split('T')[0];
 
-  const[todos, setTodos]=useState(sampleTodos[dateString]||[])
+  const[todos, setTodos]=useState([])
   const [popup, setPopup]=useState(false)
   const [time, setTime]= useState(new Date())
 
   useEffect(()=>{
     const interval= setInterval(()=>{setToday(new Date())}, 60000)
-
+    loadTodos()
     return ()=> clearInterval(interval)//To stop the function from running if we are not on the screen
   }, [])
+
+  const loadTodos= async ()=>{
+    const loadedTodos=await ToDoFileIO.getTodosForDate(dateString)
+    setTodos(loadedTodos)
+  }
   
-  const handleTodoToggle = (todoId) => {
+  const handleTodoToggle =async (todoId) => {
+    const toDoToUpdate=todos.find(todo=>todo.id===todoId)
+    await FileStorageService.updateTodo(dateString, todoId, {
+        completed: !toDoToUpdate.completed
+    });
     setTodos(prevTodos => 
       prevTodos.map(todo => 
         todo.id === todoId 
@@ -99,13 +62,13 @@ export default function ToDoScreen() {
     return toDoTime<today && !toDo.completed    
   }
 
-  const handleAddTodo = (text, todoTime) => {
-    const newTodo = {
+  const handleAddTodo = async (text, todoTime) => {
+    const newTodo =await ToDoFileIO.addTodo(dateString,{
       id: Date.now().toString(),
       text: text.trim(),
       completed: false,
       time: todoTime,
-    };
+    }) 
     setTodos(prev => [...prev, newTodo]);
   };
 
@@ -120,7 +83,9 @@ export default function ToDoScreen() {
   return (
     <SafeAreaView className='mt-16 pl-5 pr-5 mb-14' >
       <Text className='text-4xl font-bold text-gray-800 mb-5'>Hello User!</Text>
-      <ScrollView>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+      >
 
         <View className='bg-[#D9D9D9] rounded-2xl p-5 mb-6 shadow-2xl min-h-96 flex flex-col '>
           <View className='mb-3 border-b border-gray-400 pb-1'>
