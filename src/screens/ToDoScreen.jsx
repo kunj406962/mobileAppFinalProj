@@ -6,86 +6,71 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useRoute } from '@react-navigation/native';
-import ToDos from '../assets/components/ToDos';
-import PopUp from '../assets/components/PopUp';
-import TodoSection from '../assets/components/ToDoSection';
+import ToDos from "../assets/components/ToDos"
+import PopUp from "../assets/components/PopUp"
+import TodoSection from "../assets/components/ToDoSection"
+import ToDoFileIO from "../assets/components/ToDoFileIO"
+import { useEffect, useState } from 'react';
 
 export default function ToDoScreen() {
-  const route = useRoute();
-
-  const [today, setToday] = useState(new Date());
-
-  // All todos live here: { id, text, completed, time, date }
-  const [todos, setTodos] = useState([]);
-
-  const [popup, setPopup] = useState(false);
-  const [time, setTime] = useState(new Date());
-
-  // This is the date we are adding tasks FOR (today or from calendar)
-  const [targetDate, setTargetDate] = useState(
-    today.toISOString().split('T')[0]
-  );
-
-  // Keep "today" updated every minute
-  useEffect(() => {
-    const interval = setInterval(() => setToday(new Date()), 60000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const todayString = today.toISOString().split('T')[0];
-
-  // Whenever route params change (like from Calendar), update targetDate
-  useEffect(() => {
-    if (route.params?.selectedDate) {
-      setTargetDate(route.params.selectedDate);
-      // Auto-open popup when coming from calendar
-      setPopup(true);
-    } else {
-      // If coming in normally (tab press), default to today
-      setTargetDate(todayString);
-    }
-  }, [route.params?.selectedDate, todayString]);
+  
+  const[today, setToday]= useState(new Date())
 
   const dayName = today.toLocaleDateString('en-US', { weekday: 'long' });
   const monthName = today.toLocaleDateString('en-US', { month: 'long' });
   const date = today.getDate();
-  const year = today.getFullYear();
+  const year= today.getFullYear();
+  const dateString = today.toISOString().split('T')[0];
 
-  // Convert "HH:MM" to a Date (today) for overdue check
-  const timeToDateForToday = (timeString) => {
-    const [hours, minutes] = timeString.split(':').map(Number);
-    const d = new Date(today);
-    d.setHours(hours, minutes, 0, 0);
-    return d;
-  };
+  const[todos, setTodos]=useState([])
+  const [popup, setPopup]=useState(false)
+  const [time, setTime]= useState(new Date())
 
-  const isTodoOverdue = (todo) => {
-    if (todo.date !== todayString || todo.completed) return false;
-    const todoTime = timeToDateForToday(todo.time);
-    return todoTime < today;
-  };
+  useEffect(()=>{
+    const interval= setInterval(()=>{setToday(new Date())}, 60000)
+    loadTodos()
+    return ()=> clearInterval(interval)//To stop the function from running if we are not on the screen
+  }, [])
 
-  const handleTodoToggle = (todoId) => {
-    setTodos((prev) =>
-      prev.map((todo) =>
-        todo.id === todoId
+  const loadTodos= async ()=>{
+    const loadedTodos=await ToDoFileIO.getTodosForDate(dateString)
+    setTodos(loadedTodos)
+  }
+  
+  const handleTodoToggle =async (todoId) => {
+    const toDoToUpdate=todos.find(todo=>todo.id===todoId)
+    await FileStorageService.updateTodo(dateString, todoId, {
+        completed: !toDoToUpdate.completed
+    });
+    setTodos(prevTodos => 
+      prevTodos.map(todo => 
+        todo.id === todoId 
           ? { ...todo, completed: !todo.completed }
           : todo
       )
     );
   };
 
-  const handleAddTodo = (text, todoTime) => {
-    const newTodo = {
+  const timeToString=(timeString)=>{
+    const[hours, minutes]=timeString.split(':').map(Number)
+    const date= new Date();
+    date.setHours(hours, minutes, 0, 0)
+    return date;
+  }
+
+  const isTodoOverdue=(toDo)=>{
+    const toDoTime= timeToString(toDo.time)
+    return toDoTime<today && !toDo.completed    
+  }
+
+  const handleAddTodo = async (text, todoTime) => {
+    const newTodo =await ToDoFileIO.addTodo(dateString,{
       id: Date.now().toString(),
       text: text.trim(),
       completed: false,
       time: todoTime,
-      date: targetDate,
-    };
-
-    setTodos((prev) => [...prev, newTodo]);
+    }) 
+    setTodos(prev => [...prev, newTodo]);
   };
 
   const handleTimeChange = (event, selectedTime) => {
@@ -131,40 +116,16 @@ export default function ToDoScreen() {
       : null;
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F8F8F8] px-5 pb-20 -mt-0">
-      {/* Top greeting */}
-      <View className="mb-3">
-        <Text className="text-3xl font-bold text-gray-900">
-          Hello!
-        </Text>
+    <SafeAreaView className='mt-16 pl-5 pr-5 mb-14' >
+      <Text className='text-4xl font-bold text-gray-800 mb-5'>Hello User!</Text>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+      >
 
-        {targetPretty && (
-          <Text className="mt-1 text-xs text-gray-500">
-            Adding tasks for: <Text className="font-semibold">{targetPretty}</Text>
-          </Text>
-        )}
-      </View>
-
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* TODAY CARD */}
-        <View className="bg-[#E3E6EB] rounded-2xl p-5 mb-6 shadow">
-          <View className="mb-3 border-b border-gray-400 pb-1">
-            <Text className="text-xl font-bold text-gray-800">
-              {dayName}
-            </Text>
-            <Text className="text-sm italic font-light pb-1 text-gray-700">
-              {monthName} {date}, {year}
-            </Text>
-          </View>
-
-          <View className="mt-2 mb-4">
-            {notCompletedToday.map((todo) => (
-              <ToDos
-                key={todo.id}
-                todo={todo}
-                onToggle={handleTodoToggle}
-              />
-            ))}
+        <View className='bg-[#D9D9D9] rounded-2xl p-5 mb-6 shadow-2xl min-h-96 flex flex-col '>
+          <View className='mb-3 border-b border-gray-400 pb-1'>
+            <Text className='text-2xl font-bold text-gray-800'>{dayName}</Text>
+            <Text className='text-base italic font-light pb-1'>{monthName} {date}, {year}</Text>
           </View>
 
           <TouchableOpacity
