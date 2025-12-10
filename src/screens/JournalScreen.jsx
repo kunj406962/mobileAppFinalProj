@@ -7,7 +7,8 @@ import {
   StyleSheet,
   SafeAreaView,
 } from 'react-native';
-import { useRoute } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRoute, useNavigation } from '@react-navigation/native'; // ✅ Added useNavigation
 
 const getWeekdayFromYMD = (dateStr) => {
   if (!dateStr) return null;
@@ -25,6 +26,7 @@ const getWeekdayFromYMD = (dateStr) => {
 
 export default function JournalScreen() {
   const route = useRoute();
+  const navigation = useNavigation(); // ✅ Added navigation hook
 
   const [entryText, setEntryText] = useState('');
   const [selectedDate, setSelectedDate] = useState(null);
@@ -59,13 +61,15 @@ export default function JournalScreen() {
     <SafeAreaView style={styles.container}>
       {/* Back button + Title */}
       <View style={styles.headerRow}>
-        <TouchableOpacity style={styles.backButton}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()} // ✅ Made the back button functional
+        >
           <Text style={styles.backIcon}>←</Text>
         </TouchableOpacity>
 
         <Text style={styles.titleText}>{formattedHeading}</Text>
 
-        {/* placeholder for spacing */}
         <View style={{ width: 20 }} />
       </View>
 
