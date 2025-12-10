@@ -59,7 +59,7 @@ export default function JournalListScreen() {
         }
       >
         <Text className="text-center font-semibold text-lg">
-          ➕ Write a Journal
+          + Write a Journal
         </Text>
       </TouchableOpacity>
 

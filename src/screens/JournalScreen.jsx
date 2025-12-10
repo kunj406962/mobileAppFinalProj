@@ -71,12 +71,12 @@ export default function JournalScreen() {
       let updatedEntries;
 
       if (entryId) {
-        // ✏️ Update existing entry
+        // Update existing entry
         updatedEntries = parsed.map((e) =>
           e.id === entryId ? { ...e, text: entryText, date, timestamp } : e
         );
       } else {
-        // 🆕 New entry
+        // New entry
         const newEntry = {
           id: timestamp.toString(),
           date,
