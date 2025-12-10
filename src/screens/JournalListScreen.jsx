@@ -35,43 +35,55 @@ export default function JournalListScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-[#F8F8F8] px-5">
-      <Text className="text-3xl font-bold mt-3 mb-4">Journal</Text>
+  <SafeAreaView className="flex-1 bg-[#F8F8F8] px-5">
+    <Text className="text-3xl font-bold mt-3 mb-4">Journal</Text>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {entries.length === 0 && (
-          <Text className="text-gray-500 mt-20 text-center">
-            No entries yet. Tap a date in the Calendar to start!
-          </Text>
-        )}
+    <TouchableOpacity
+      className="bg-[#96ccffff] rounded-xl p-3 mb-4"
+      onPress={() =>
+        navigation.navigate('JournalEntry', {
+          selectedDate: new Date().toISOString(),
+          existingText: "",
+          entryId: null,
+        })
+      }
+    >
+      <Text className="text-center font-semibold text-lg">➕ Write a Journal</Text>
+    </TouchableOpacity>
 
-        {entries
-          .sort((a, b) => b.timestamp - a.timestamp)
-          .map((entry) => (
-            <TouchableOpacity
-              key={entry.id}
-              className="bg-white rounded-xl p-4 mb-3 shadow"
-              onPress={() =>
-                navigation.navigate('JournalEntry', {
-                  selectedDate: entry.date,
-                  existingText: entry.text,
-                  entryId: entry.id,
-                })
-              }
+    <ScrollView showsVerticalScrollIndicator={false}>
+      {entries.length === 0 && (
+        <Text className="text-gray-500 mt-6 text-center italic">
+          No entries yet. 
+        </Text>
+      )}
+
+      {entries
+        .sort((a, b) => b.timestamp - a.timestamp)
+        .map((entry) => (
+          <TouchableOpacity
+            key={entry.id}
+            className="bg-white rounded-xl p-4 mb-3 shadow"
+            onPress={() =>
+              navigation.navigate('JournalEntry', {
+                selectedDate: entry.date,
+                existingText: entry.text,
+                entryId: entry.id,
+              })
+            }
+          >
+            <Text className="font-semibold text-lg">
+              {formatPretty(entry.date)}
+            </Text>
+            <Text
+              numberOfLines={2}
+              className="text-gray-600 mt-1"
             >
-              <Text className="font-semibold text-lg">
-                {formatPretty(entry.date)}
-              </Text>
-              <Text
-                numberOfLines={2}
-                className="text-gray-600 mt-1"
-              >
-                {entry.text}
-              </Text>
-            </TouchableOpacity>
-          ))}
-      </ScrollView>
-    </SafeAreaView>
-  );
+              {entry.text}
+            </Text>
+          </TouchableOpacity>
+        ))}
+    </ScrollView>
+  </SafeAreaView>
+);
 }
-

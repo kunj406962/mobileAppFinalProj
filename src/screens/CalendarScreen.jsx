@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Text,
   View,
@@ -22,13 +22,13 @@ export default function CalendarScreen() {
   const [headerDate, setHeaderDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
   const [cuteAlertVisible, setCuteAlertVisible] = useState(false);
-
-  // Dates that have tasks (YYYY-MM-DD strings)
-  const [taskDates, setTaskDates] = useState([]);
+  const [taskDates, setTaskDates] = useState([]); // YYYY-MM-DD strings
 
   const navigation = useNavigation();
 
-  const handleSwipe = (date) => setHeaderDate(date);
+  const handleSwipe = useCallback((date) => {
+    setHeaderDate(date);
+  }, []);
 
   const changeMonth = (offset) => {
     setHeaderDate((prev) => {
@@ -41,8 +41,25 @@ export default function CalendarScreen() {
   const monthName = headerDate.toLocaleString('default', { month: 'long' });
   const year = headerDate.getFullYear();
 
-  // When a day is tapped in the calendar
-  const handleDayPress = (date) => {
+  // 💫 When a day is tapped in the calendar
+  const handleDayPress = (raw) => {
+    console.log('📅 handleDayPress raw:', raw);
+
+    let date = raw;
+
+    if (raw && raw.date) {
+      date = new Date(raw.date);
+    } else if (raw && raw.dateString) {
+      date = new Date(raw.dateString);
+    } else if (typeof raw === 'string') {
+      date = new Date(raw);
+    }
+
+    if (!(date instanceof Date) || isNaN(date)) {
+      date = new Date();
+    }
+
+    console.log('✅ using date:', date);
     setSelectedDate(date);
     setCuteAlertVisible(true);
   };
@@ -55,7 +72,7 @@ export default function CalendarScreen() {
       })
     : '';
 
-  // Build calendar events for days that have tasks
+  // events for dots
   const events = taskDates.map((dateStr) => {
     const [y, m, d] = dateStr.split('-').map(Number);
     const start = new Date(y, m - 1, d, 9, 0);
@@ -92,7 +109,7 @@ export default function CalendarScreen() {
         </View>
       </View>
 
-      {/* Divider under header */}
+      {/* Divider */}
       <View style={styles.headerDivider} />
 
       {/* CALENDAR */}
@@ -105,18 +122,23 @@ export default function CalendarScreen() {
 
       {/* CUTE MODAL POPUP */}
       <Modal
-        transparent={true}
+        transparent
         visible={cuteAlertVisible}
         animationType="fade"
-        statusBarTranslucent={true}
+        statusBarTranslucent
       >
         <View style={styles.modalBackground}>
           <View style={styles.modalCard}>
             <Text style={styles.modalTitle}>Create for</Text>
             <Text style={styles.modalDate}>{formatted}</Text>
 
-            <View className="flex-row justify-center items-center">
-
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
               {/* To-Do button */}
               <TouchableOpacity
                 style={[styles.actionButton, { backgroundColor: '#7D8C9A' }]}
@@ -132,7 +154,7 @@ export default function CalendarScreen() {
                   setCuteAlertVisible(false);
                   navigation.navigate('ToDo', {
                     screen: 'AddTodo',
-                    params:{selectedDate}
+                    params: { selectedDate: iso },
                   });
                 }}
               >
@@ -146,7 +168,9 @@ export default function CalendarScreen() {
                   if (!selectedDate) return;
                   const iso = formatDateYMD(selectedDate);
                   setCuteAlertVisible(false);
-                  navigation.navigate('Journal', {
+
+                  // 👉 go to your Journal entry screen
+                  navigation.navigate('JournalEntry', {
                     selectedDate: iso,
                   });
                 }}
@@ -219,7 +243,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
 
-  /* MODAL BACKDROP */
   modalBackground: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.25)',
