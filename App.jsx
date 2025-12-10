@@ -16,6 +16,7 @@ import ToDoScreen from './src/screens/ToDoScreen';
 import CalendarScreen from './src/screens/CalendarScreen';
 import JournalScreen from './src/screens/JournalScreen';
 import { NavigationContainer } from '@react-navigation/native';
+import JournalStack from './src/screens/JournalStack';
 
 const Tab = createBottomTabNavigator();
 
@@ -82,7 +83,7 @@ function App() {
       >
         <Tab.Screen name="ToDo" component={ToDoScreen} />
         <Tab.Screen name="Calendar" component={CalendarScreen} />
-        <Tab.Screen name="Journal" component={JournalScreen} />
+        <Tab.Screen name="Journal" component={JournalStack} />
       </Tab.Navigator>
     </NavigationContainer>
   );
