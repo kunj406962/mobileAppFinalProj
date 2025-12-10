@@ -169,9 +169,9 @@ export default function CalendarScreen() {
                   const iso = formatDateYMD(selectedDate);
                   setCuteAlertVisible(false);
 
-                  // 👉 go to your Journal entry screen
-                  navigation.navigate('JournalEntry', {
-                    selectedDate: iso,
+                  navigation.navigate('Journal', {
+                    screen: 'JournalEntry',
+                    params: { selectedDate: iso },
                   });
                 }}
               >
