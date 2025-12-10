@@ -17,7 +17,7 @@ export default function ToDoScreen() {
   const [todos, setTodos] = useState([])
   const [popup, setPopup] = useState(false)
   const [time, setTime] = useState(new Date())
-  // ADD THIS: targetDate state
+
   const [targetDate, setTargetDate] = useState(() => {
     const todayDate = new Date();
     return todayDate.toISOString().split('T')[0];
@@ -126,7 +126,7 @@ export default function ToDoScreen() {
 
   return (
     <SafeAreaView className='pl-5 pr-5 mb-14'>
-      <Text className='text-4xl font-bold text-gray-800 mb-5'>Hello User!</Text>
+      <Text className='text-4xl font-bold text-gray-800 mt-5 mb-5'>Hello!</Text>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View className='bg-[#D9D9D9] rounded-2xl p-5 mb-6 shadow-2xl min-h-96 flex flex-col'>
           <View className='mb-3 border-b border-gray-400 pb-1'>
