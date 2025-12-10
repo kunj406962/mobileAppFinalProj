@@ -1,19 +1,27 @@
+import React from 'react';
 import { View, Text } from 'react-native';
 import ToDos from './ToDos';
 
-const TodoSection = ({ title, todos, onToggle, backgroundColor, textColor = 'text-gray-800' }) => {
+export default function TodoSection({ title, todos, onToggle, backgroundColor }) {
+
   return (
-    <View className={`${backgroundColor} mt-8 rounded-2xl p-5 mb-6 shadow-2xl min-h-96`}>
-      <Text className={`text-2xl font-bold ${textColor} mb-3 border-b border-gray-400 pb-2`}>
+    <View className={`${backgroundColor} rounded-2xl p-5 mb-6 shadow`}>
+
+      <Text className="text-lg font-semibold text-gray-900 mb-3">
         {title}
       </Text>
-      <View className="flex flex-col items-center">
-        {todos.map((todo) => (
-          <ToDos key={todo.id} todo={todo} onToggle={onToggle} />
-        ))}
+
+      <View className="space-y-2">
+        {todos && todos.length > 0 ? (
+          todos.map(todo => (
+            <ToDos key={todo.id} todo={todo} onToggle={onToggle} />
+          ))
+        ) : (
+          <Text className="text-sm text-gray-500 italic">
+            No {title.toLowerCase()} tasks.
+          </Text>
+        )}
       </View>
     </View>
   );
-};
-
-export default TodoSection;
+}
