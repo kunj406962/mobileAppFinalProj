@@ -6,8 +6,8 @@ import {
   StyleSheet,
   Modal,
   TouchableOpacity,
+  SafeAreaView,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import LargeCalendar from '../assets/components/LargeCalendar.jsx';
 
