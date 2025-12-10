@@ -10,37 +10,41 @@ import ToDos from "../assets/components/ToDos"
 import PopUp from "../assets/components/PopUp"
 import TodoSection from "../assets/components/ToDoSection"
 import ToDoFileIO from "../assets/components/ToDoFileIO"
-import { useEffect, useState } from 'react';
 
 export default function ToDoScreen() {
   
-  const[today, setToday]= useState(new Date())
+  const [today, setToday] = useState(new Date())
+  const [todos, setTodos] = useState([])
+  const [popup, setPopup] = useState(false)
+  const [time, setTime] = useState(new Date())
+  // ADD THIS: targetDate state
+  const [targetDate, setTargetDate] = useState(() => {
+    const todayDate = new Date();
+    return todayDate.toISOString().split('T')[0];
+  });
 
   const dayName = today.toLocaleDateString('en-US', { weekday: 'long' });
   const monthName = today.toLocaleDateString('en-US', { month: 'long' });
   const date = today.getDate();
-  const year= today.getFullYear();
+  const year = today.getFullYear();
   const dateString = today.toISOString().split('T')[0];
 
-  const[todos, setTodos]=useState([])
-  const [popup, setPopup]=useState(false)
-  const [time, setTime]= useState(new Date())
-
-  useEffect(()=>{
-    const interval= setInterval(()=>{setToday(new Date())}, 60000)
+  useEffect(() => {
+    const interval = setInterval(() => { setToday(new Date()) }, 60000)
     loadTodos()
-    return ()=> clearInterval(interval)//To stop the function from running if we are not on the screen
+    return () => clearInterval(interval)
   }, [])
 
-  const loadTodos= async ()=>{
-    const loadedTodos=await ToDoFileIO.getTodosForDate(dateString)
+  const loadTodos = async () => {
+    const loadedTodos = await ToDoFileIO.getTodosForDate(dateString)
     setTodos(loadedTodos)
   }
   
-  const handleTodoToggle =async (todoId) => {
-    const toDoToUpdate=todos.find(todo=>todo.id===todoId)
-    await FileStorageService.updateTodo(dateString, todoId, {
-        completed: !toDoToUpdate.completed
+  const handleTodoToggle = async (todoId) => {
+    const toDoToUpdate = todos.find(todo => todo.id === todoId)
+    // FIX: Use ToDoFileIO instead of FileStorageService
+    await ToDoFileIO.updateTodo(dateString, todoId, {
+      completed: !toDoToUpdate.completed
     });
     setTodos(prevTodos => 
       prevTodos.map(todo => 
@@ -51,21 +55,27 @@ export default function ToDoScreen() {
     );
   };
 
-  const timeToString=(timeString)=>{
-    const[hours, minutes]=timeString.split(':').map(Number)
-    const date= new Date();
+  const timeToString = (timeString) => {
+    const [hours, minutes] = timeString.split(':').map(Number)
+    const date = new Date();
     date.setHours(hours, minutes, 0, 0)
     return date;
   }
 
-  const isTodoOverdue=(toDo)=>{
-    const toDoTime= timeToString(toDo.time)
-    return toDoTime<today && !toDo.completed    
+  const isTodoOverdue = (toDo) => {
+    if (!toDo.time) return false;
+    const toDoTime = timeToString(toDo.time);
+    const now = new Date();
+    
+    // Create a date with today's date and the todo's time
+    const todoDateTime = new Date();
+    todoDateTime.setHours(toDoTime.getHours(), toDoTime.getMinutes(), 0, 0);
+    
+    return todoDateTime < now && !toDo.completed;
   }
 
   const handleAddTodo = async (text, todoTime) => {
-    const newTodo =await ToDoFileIO.addTodo(dateString,{
-      id: Date.now().toString(),
+    const newTodo = await ToDoFileIO.addTodo(dateString, {
       text: text.trim(),
       completed: false,
       time: todoTime,
@@ -77,10 +87,8 @@ export default function ToDoScreen() {
     setTime(selectedTime || time);
   };
 
-  // ---- GROUPING ----
-
-  // Todos scheduled for TODAY only
-  const todayTodos = todos.filter((todo) => todo.date === todayString);
+  // Grouping logic
+  const todayTodos = todos;
 
   const notCompletedToday = todayTodos.filter(
     (todo) => !todo.completed && !isTodoOverdue(todo)
@@ -90,17 +98,18 @@ export default function ToDoScreen() {
   );
   const completed = todayTodos.filter((todo) => todo.completed);
 
-  // FUTURE tasks (date AFTER today, not completed)
+  // FUTURE tasks - FIXED comparison
   const futureTasks = todos
-    .filter((todo) => todo.date > todayString && !todo.completed)
+    .filter((todo) => todo.date && todo.date > dateString && !todo.completed)
     .sort((a, b) => {
       if (a.date === b.date) {
-        return a.time.localeCompare(b.time);
+        return (a.time || '00:00').localeCompare(b.time || '00:00');
       }
       return a.date.localeCompare(b.date);
     });
 
   const formatDatePretty = (dateStr) => {
+    if (!dateStr) return '';
     const [y, m, d] = dateStr.split('-').map(Number);
     const dateObj = new Date(y, m - 1, d);
     return dateObj.toLocaleDateString('en-US', {
@@ -111,53 +120,60 @@ export default function ToDoScreen() {
   };
 
   const targetPretty =
-    targetDate !== todayString
+    targetDate !== dateString
       ? formatDatePretty(targetDate)
       : null;
 
   return (
-    <SafeAreaView className='mt-16 pl-5 pr-5 mb-14' >
+    <SafeAreaView className='pl-5 pr-5 mb-14'>
       <Text className='text-4xl font-bold text-gray-800 mb-5'>Hello User!</Text>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-      >
-
-        <View className='bg-[#D9D9D9] rounded-2xl p-5 mb-6 shadow-2xl min-h-96 flex flex-col '>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View className='bg-[#D9D9D9] rounded-2xl p-5 mb-6 shadow-2xl min-h-96 flex flex-col'>
           <View className='mb-3 border-b border-gray-400 pb-1'>
             <Text className='text-2xl font-bold text-gray-800'>{dayName}</Text>
             <Text className='text-base italic font-light pb-1'>{monthName} {date}, {year}</Text>
           </View>
 
+          <View className="flex-1">
+            {/* Show Today's Todos */}
+            {notCompletedToday.length > 0 && (
+              notCompletedToday.map(todo=>(
+                <ToDos todo={todo} onToggle={handleTodoToggle}/>
+              ))
+            )}
+          </View>
+          
+
           <TouchableOpacity
-            className="mt-1 bg-[#7D8C9A] rounded-2xl py-3 items-center"
+            className="mt-4 bg-[#7D8C9A] rounded-2xl py-3 items-center"
             onPress={() => {
-
-            setTargetDate(todayString);
-            setPopup(true);
-          }}
->
-  <Text className="text-white font-medium text-base">
-    + Add To-Do
-  </Text>
-</TouchableOpacity>
-
+              setTargetDate(dateString); // Set to today
+              setPopup(true);
+            }}
+          >
+            <Text className="text-white font-medium text-base">
+              + Add To-Do
+            </Text>
+          </TouchableOpacity>
         </View>
 
-        {/* OVERDUE SECTION (today only) */}
+        {/* OVERDUE SECTION */}
         <TodoSection
           title="Overdue"
           todos={overDue}
           onToggle={handleTodoToggle}
           backgroundColor="bg-[#FFE2E2]"
         />
+        
 
-        {/* COMPLETED SECTION (today only) */}
+        {/* COMPLETED SECTION */}
         <TodoSection
           title="Completed"
           todos={completed}
           onToggle={handleTodoToggle}
           backgroundColor="bg-[#E2F0E2]"
         />
+        
 
         {/* FUTURE TASKS SECTION */}
         {futureTasks.length > 0 && (
@@ -165,11 +181,10 @@ export default function ToDoScreen() {
             <Text className="text-lg font-semibold text-gray-900 mb-3">
               Future Tasks
             </Text>
-
             {futureTasks.map((todo) => (
               <View key={todo.id} className="mb-3">
                 <Text className="text-xs text-gray-500 mb-1">
-                  {formatDatePretty(todo.date)} • {todo.time}
+                  {formatDatePretty(todo.date)} • {todo.time || 'No time'}
                 </Text>
                 <Text className="text-base text-gray-800">
                   {todo.text}
@@ -186,10 +201,9 @@ export default function ToDoScreen() {
           onAddTodo={handleAddTodo}
           time={time}
           onTimeChange={handleTimeChange}
-          targetDate={targetDate}        
-          targetPretty={targetPretty}    
+          targetDate={targetDate}
+          targetPretty={targetPretty}
         />
-
       </ScrollView>
     </SafeAreaView>
   );

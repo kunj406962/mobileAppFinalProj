@@ -5,7 +5,7 @@ import ToDos from './ToDos';
 export default function TodoSection({ title, todos, onToggle, backgroundColor }) {
 
   return (
-    <View className={`${backgroundColor} rounded-2xl p-5 mb-6 shadow`}>
+    <View className={`${backgroundColor} rounded-2xl p-5 mb-6 shadow min-h-96`}>
 
       <Text className="text-lg font-semibold text-gray-900 mb-3">
         {title}
