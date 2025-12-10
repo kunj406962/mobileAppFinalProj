@@ -138,7 +138,7 @@ export default function ToDoScreen() {
             {/* Show Today's Todos */}
             {notCompletedToday.length > 0 && (
               notCompletedToday.map(todo=>(
-                <ToDos todo={todo} onToggle={handleTodoToggle}/>
+                <ToDos key={todo.id} todo={todo} onToggle={handleTodoToggle}/>
               ))
             )}
           </View>

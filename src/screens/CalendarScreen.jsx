@@ -131,7 +131,8 @@ export default function CalendarScreen() {
 
                   setCuteAlertVisible(false);
                   navigation.navigate('ToDo', {
-                    selectedDate: iso,
+                    screen: 'AddTodo',
+                    params:{selectedDate}
                   });
                 }}
               >

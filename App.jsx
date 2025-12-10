@@ -7,9 +7,10 @@ import './global.css'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import ToDoScreen from './src/screens/ToDoScreen';
 import CalendarScreen from './src/screens/CalendarScreen';
-import JournalScreen from './src/screens/JournalScreen';
 import { NavigationContainer } from '@react-navigation/native';
 import JournalStack from './src/screens/JournalStack';
+import ToDoStack from './src/screens/ToDoStack';
+import AddTodoScreen from './src/screens/AddToDoScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -74,7 +75,7 @@ function App() {
           headerShown: false,
         })}
       >
-        <Tab.Screen name="ToDo" component={ToDoScreen} />
+        <Tab.Screen name="ToDo" component={ToDoStack} />
         <Tab.Screen name="Calendar" component={CalendarScreen} />
         <Tab.Screen name="Journal" component={JournalStack} />
       </Tab.Navigator>
