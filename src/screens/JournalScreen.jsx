@@ -5,9 +5,11 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRoute, useNavigation } from '@react-navigation/native'; 
+import { useRoute, useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const getWeekdayFromYMD = (dateStr) => {
   if (!dateStr) return null;
@@ -23,6 +25,17 @@ const getWeekdayFromYMD = (dateStr) => {
   return dateObj.toLocaleDateString('en-US', { weekday: 'long' });
 };
 
+// Normalize to "YYYY-MM-DD"
+const normalizeDate = (selectedDate) => {
+  if (!selectedDate) {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(selectedDate)) return selectedDate;
+
+  return new Date(selectedDate).toISOString().slice(0, 10);
+};
+
 export default function JournalScreen() {
   const route = useRoute();
   const navigation = useNavigation();
@@ -30,22 +43,63 @@ export default function JournalScreen() {
   const [entryText, setEntryText] = useState('');
   const [selectedDate, setSelectedDate] = useState(null);
 
+  const entryId = route.params?.entryId || null;
+  const existingText = route.params?.existingText || '';
+
   useEffect(() => {
     if (route.params?.selectedDate) {
-      setSelectedDate(route.params.selectedDate); 
+      setSelectedDate(route.params.selectedDate);
     }
-  }, [route.params?.selectedDate]);
+    if (existingText) {
+      setEntryText(existingText);
+    }
+  }, [route.params?.selectedDate, existingText]);
 
-  const handlePost = () => {
-    if (!entryText.trim()) return;
+  const handlePost = async () => {
+    if (!entryText.trim()) {
+      Alert.alert('Empty entry', 'Write something before posting!');
+      return;
+    }
 
-    console.log('Journal posted:', {
-      date: selectedDate,
-      text: entryText,
-    });
+    try {
+      const stored = await AsyncStorage.getItem('JOURNALS');
+      const parsed = stored ? JSON.parse(stored) : [];
 
-    alert('Your journal entry has been posted! ✨');
-    setEntryText('');
+      const date = normalizeDate(selectedDate);
+      const timestamp = Date.now();
+
+      let updatedEntries;
+
+      if (entryId) {
+        // ✏️ Update existing entry
+        updatedEntries = parsed.map((e) =>
+          e.id === entryId ? { ...e, text: entryText, date, timestamp } : e
+        );
+      } else {
+        // 🆕 New entry
+        const newEntry = {
+          id: timestamp.toString(),
+          date,
+          text: entryText,
+          timestamp,
+        };
+        updatedEntries = [...parsed, newEntry];
+      }
+
+      await AsyncStorage.setItem('JOURNALS', JSON.stringify(updatedEntries));
+
+      Alert.alert('Saved ✨', 'Your journal entry has been stored.', [
+        {
+          text: 'OK',
+          onPress: () => navigation.goBack(),
+        },
+      ]);
+
+      setEntryText('');
+    } catch (err) {
+      console.error('Error saving journal:', err);
+      Alert.alert('Error', 'Could not save your journal entry.');
+    }
   };
 
   const today = new Date();
